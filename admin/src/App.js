@@ -12,6 +12,9 @@ import { AuthContext } from "./context/AuthContext";
 import { hotelColumns, roomColumns, userColumns } from "./datatablesource";
 import NewHotel from "./pages/newHotel/NewHotel";
 import NewRoom from "./pages/newRoom/NewRoom";
+import UpdateHotel from "./pages/updateHotel/UpdateHotel";
+import UpdateUser from "./pages/updateUser/UpdateUser";
+import UpdateRoom from "./pages/updateRoom/UpdateRoom";
 
 function App() {
   const { darkMode } = useContext(DarkModeContext);
@@ -50,14 +53,6 @@ function App() {
                 }
               />
               <Route
-                path=":userId"
-                element={
-                  <ProtectedRoute>
-                    <Single />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="new"
                 element={
                   <ProtectedRoute>
@@ -65,6 +60,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path=":userId" element={<ProtectedRoute><UpdateUser /></ProtectedRoute>} />
             </Route>
             <Route path="hotels">
               <Route
@@ -76,14 +72,6 @@ function App() {
                 }
               />
               <Route
-                path=":productId"
-                element={
-                  <ProtectedRoute>
-                    <Single />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="new"
                 element={
                   <ProtectedRoute>
@@ -91,6 +79,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path=":hotelId" element={<ProtectedRoute><UpdateHotel /></ProtectedRoute>} />
             </Route>
             <Route path="rooms">
               <Route
@@ -102,14 +91,6 @@ function App() {
                 }
               />
               <Route
-                path=":productId"
-                element={
-                  <ProtectedRoute>
-                    <Single />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="new"
                 element={
                   <ProtectedRoute>
@@ -117,6 +98,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path=":roomId" element={<ProtectedRoute><UpdateRoom /></ProtectedRoute>} />
             </Route>
           </Route>
         </Routes>

@@ -82,7 +82,7 @@ const UpdateUser = () => {
               src={
                 file
                   ? URL.createObjectURL(file)
-                  : info.img || // Ganti dengan field gambar di backend
+                  : info.img ||
                     "https://icon-library.com/images/no-image-icon/no-image-icon-0.jpg"
               }
               alt=""
@@ -102,7 +102,6 @@ const UpdateUser = () => {
                 />
               </div>
 
-              {/* Sesuaikan input fields dengan data user */}
               {userInputs.map((input) => (
                 <div className="formInput" key={input.id}>
                   <label>{input.label}</label>

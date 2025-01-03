@@ -1,98 +1,130 @@
-import React, { useContext, useEffect, useState } from "react";
-import "./reserve.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
-import useFetch from "../../hooks/useFetch";
-import { SearchContext } from "../../context/SearchContext";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import StripeCheckout from "react-stripe-checkout";
+import "./reserve.css"
+import useFetch from "../../hooks/useFetch"
+import { SearchContext } from "../../context/SearchContext"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons"
+import { useNavigate } from "react-router-dom"
+import StripeCheckout from "react-stripe-checkout"
+import axios from "axios"
+import { React, useContext, useState } from "react"
 
-const KEY = "pk_test_51QbMGcJIZEdecxEeHYkDS9M5QBIrvMn0K3STu180mmKTBouFsZFjMxluLOq2JXIe2DkQraNRZkXWs8M8H53N6KKJ001sELoFXj"; // Publishable Key
+const KEY = "pk_test_51QbMGcJIZEdecxEeHYkDS9M5QBIrvMn0K3STu180mmKTBouFsZFjMxluLOq2JXIe2DkQraNRZkXWs8M8H53N6KKJ001sELoFXj"
 
 const Reserve = ({ setOpen, hotelId }) => {
-  const [selectedRooms, setSelectedRooms] = useState([]);
-  const { data, loading, error } = useFetch(`/api/hotels/room/${hotelId}`);
-  const { dates } = useContext(SearchContext);
+  const [selectedRooms, setSelectedRooms] = useState([])
+  const { dates } = useContext(SearchContext)
+  const { data, loading, error } = useFetch(`/api/hotels/room/${hotelId}`)
+
+  const navigate = useNavigate()
 
   const getDatesInRange = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    const date = new Date(start.getTime());
-
-    const dates = [];
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const date = new Date(start.getTime())
+    const dates = []
 
     while (date <= end) {
-      dates.push(new Date(date).getTime());
-      date.setDate(date.getDate() + 1);
+      dates.push(new Date(date).getTime())
+      date.setDate(date.getDate() + 1)
     }
 
-    return dates;
-  };
+    return dates
+  }
 
-  const allDates = getDatesInRange(dates[0].startDate, dates[0].endDate);
+  const allDates = getDatesInRange(dates[0].startDate, dates[0].endDate)
 
   const isAvailable = (roomNumber) => {
     const isFound = roomNumber.unavailableDates.some((date) =>
       allDates.includes(new Date(date).getTime())
-    );
+    )
 
-    return !isFound;
-  };
+    return !isFound
+  }
 
   const handleSelect = (e) => {
-    const checked = e.target.checked;
-    const value = e.target.value;
+    const checked = e.target.checked
+    const value = e.target.value
 
     setSelectedRooms(
       checked
         ? [...selectedRooms, value]
         : selectedRooms.filter((item) => item !== value)
-    );
-  };
-
-  const navigate = useNavigate();
+    )
+  }
 
   const handleClick = () => {
     if (selectedRooms.length === 0) {
-      alert("Please select at least one room.");
+      alert("Please select at least one room!")
+
+      return
     }
-  };
+  }
+
+  const calculateTotalPrice = () => {
+    let total = 0
+
+    selectedRooms.forEach((roomId) => {
+      const room = data.find((item) =>
+        item.roomNumbers.some((roomNumber) => roomNumber._id === roomId)
+      )
+
+      if (room) {
+        total += room.price * (dates[0].endDate - dates[0].startDate) / (1000 * 60 * 60 * 24)
+      }
+    })
+
+    return total
+  }
+
+  const createTransaction = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"))
+      const userId = user._id
+
+      const transactionData = {
+        userId,
+        hotelId,
+        roomId: selectedRooms[0],
+        dates: allDates,
+        amount: calculateTotalPrice()
+      }
+
+      await axios.post("/api/transactions", transactionData)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const onToken = async (token) => {
     try {
       await Promise.all(
-        selectedRooms.map((roomId) => {
-          const res = axios.put(`/api/rooms/availability/${roomId}`, {
-            dates: allDates,
-          });
-          return res.data;
-        })
-      );
+        selectedRooms.map((roomId) =>
+          axios.put(`/api/rooms/availability/${roomId}`, { dates: allDates })
+        )
+      )
 
-      // Kirim token ke backend untuk diproses
-      const response = await axios.post("/api/checkout/payment", {
+      await axios.post("/api/checkout/payment", {
         tokenId: token.id,
-        amount: 20000, // Ganti dengan jumlah yang seharusnya
+        amount: calculateTotalPrice() * 100,
       });
 
-      console.log(response.data); // Tangani response dari backend
+      await createTransaction()
 
-      setOpen(false);
-      navigate("/");
+      setOpen(false)
+
+      navigate("/")
     } catch (err) {
-      console.error(err); // Tangani error dari backend, misalnya tampilkan pesan error ke user
+      console.error(err)
     }
-  };
+  };  
 
   return (
     <div className="reserve">
       <div className="rContainer">
         <FontAwesomeIcon
           icon={faCircleXmark}
-          className="rClose"
           onClick={() => setOpen(false)}
+          className="rClose"
         />
         <span>Select your rooms:</span>
         {data.map((item) => (
@@ -112,8 +144,8 @@ const Reserve = ({ setOpen, hotelId }) => {
                   <input
                     type="checkbox"
                     value={roomNumber._id}
-                    onChange={handleSelect}
                     disabled={!isAvailable(roomNumber)}
+                    onChange={handleSelect}
                   />
                 </div>
               ))}
@@ -125,7 +157,7 @@ const Reserve = ({ setOpen, hotelId }) => {
           billingAddress
           shippingAddress
           description="desc"
-          amount={20000} // Ganti dengan jumlah yang seharusnya
+          amount={calculateTotalPrice() * 100}
           token={onToken}
           stripeKey={KEY}
         >
@@ -135,7 +167,7 @@ const Reserve = ({ setOpen, hotelId }) => {
         </StripeCheckout>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Reserve;
+export default Reserve

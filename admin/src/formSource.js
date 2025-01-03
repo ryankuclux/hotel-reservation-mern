@@ -14,7 +14,7 @@ export const userInputs = [
   {
     id: "phone",
     label: "Phone",
-    type: "text",
+    type: "number",
     placeholder: "+1 234 567 89",
   },
   {
@@ -58,7 +58,7 @@ export const productInputs = [
   {
     id: 4,
     label: "Price",
-    type: "text",
+    type: "number",
     placeholder: "100",
   },
   {
@@ -115,7 +115,7 @@ export const hotelInputs = [
   {
     id: "cheapestPrice",
     label: "Price",
-    type: "text",
+    type: "number",
     placeholder: "100",
   },
 ];

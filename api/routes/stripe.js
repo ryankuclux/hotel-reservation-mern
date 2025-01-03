@@ -12,7 +12,7 @@ router.post("/payment", async (req, res) => {
     const charge = await stripe.charges.create({
       source: req.body.tokenId,
       amount: req.body.amount,
-      currency: "eur",
+      currency: "usd",
     });
     res.status(200).json(charge);
   } catch (err) {

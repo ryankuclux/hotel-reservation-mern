@@ -6,6 +6,7 @@ import usersRoute from "./routes/users.js";
 import hotelsRoute from "./routes/hotels.js";
 import roomsRoute from "./routes/rooms.js";
 import stripeRoute from "./routes/stripe.js"
+import transactionRoute from "./routes/transaction.js"
 import cookieParser from "cookie-parser";
 import cors from "cors"
 
@@ -35,6 +36,7 @@ app.use("/api/users", usersRoute);
 app.use("/api/hotels", hotelsRoute);
 app.use("/api/rooms", roomsRoute);
 app.use("/api/checkout", stripeRoute)
+app.use("/api/transactions", transactionRoute)
 
 app.use((err, req, res, next) => {
     const errorStatus = err.status || 500

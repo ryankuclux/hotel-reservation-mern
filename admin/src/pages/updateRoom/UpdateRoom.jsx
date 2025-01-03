@@ -11,7 +11,7 @@ const UpdateRoom = () => {
   const location = useLocation();
   const roomId = location.pathname.split("/")[2];
   const [info, setInfo] = useState({});
-  const [hotelId, setHotelId] = useState(""); // Inisialisasi dengan string kosong
+  const [hotelId, setHotelId] = useState("");
   const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ const UpdateRoom = () => {
           },
         });
         setInfo(res.data);
-        setHotelId(res.data.hotel); // Pastikan res.data.hotel ada dan bertipe string
+        setHotelId(res.data.hotel);
         setRooms(res.data.roomNumbers.map((room) => room.number));
       } catch (err) {
         console.log(err);
@@ -44,7 +44,6 @@ const UpdateRoom = () => {
   const handleClick = async (e) => {
     e.preventDefault();
 
-    // Validasi hotelId
     if (!hotelId) {
       alert("Please select a hotel.");
       return;
@@ -53,7 +52,7 @@ const UpdateRoom = () => {
     const roomNumbers = rooms.map((room) => ({ number: room }));
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`/rooms/${info._id}`, { ...info, roomNumbers, hotelId }, { // Kirim hotelId di body
+      await axios.put(`/rooms/${info._id}`, { ...info, roomNumbers, hotelId }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -93,7 +92,7 @@ const UpdateRoom = () => {
                 <textarea
                   onChange={(e) => setRooms(e.target.value)}
                   placeholder="give comma between room numbers."
-                  value={rooms.join(",")} // Set nilai awal dari state
+                  value={rooms.join(",")}
                 />
               </div>
               <div className="formInput">
@@ -101,7 +100,7 @@ const UpdateRoom = () => {
                 <select
                   id="hotelId"
                   onChange={(e) => setHotelId(e.target.value)}
-                  value={hotelId} // Set nilai awal dari state
+                  value={hotelId}
                 >
                   {loading
                     ? "loading"

@@ -1,27 +1,36 @@
-import "./datatable.scss";
-import { DataGrid } from "@mui/x-data-grid";
-import { userColumns, userRows } from "../../datatablesource";
-import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import useFetch from "../../hooks/useFetch";
-import axios from "axios";
+import "./datatable.scss"
+import { DataGrid } from "@mui/x-data-grid"
+import useFetch from "../../hooks/useFetch"
+import { Link, useLocation } from "react-router-dom"
+import { useEffect, useState } from "react"
+import axios from "axios"
 
-const Datatable = ({columns}) => {
-  const location = useLocation();
-  const path = location.pathname.split("/")[1];
-  const [list, setList] = useState([]);
-  const { data, loading, error } = useFetch(`/${path}`);
+const Datatable = ({ columns }) => {
+  const [list, setList] = useState([])
+  const location = useLocation()
+  const path = location.pathname.split("/")[1]
+
+  const { data, loading, error } = useFetch(`/${path}`)
 
   useEffect(() => {
-    setList(data);
-  }, [data]);
+    setList(data)
+  }, [data])
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`/${path}/${id}`);
-      setList(list.filter((item) => item._id !== id));
-    } catch (err) {}
-  };
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this item?"
+    )
+
+    if (isConfirmed) {
+      try {
+        await axios.delete(`/${path}/${id}`)
+
+        setList(list.filter((item) => item._id !== id))
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  }
 
   const actionColumn = [
     {
@@ -31,7 +40,10 @@ const Datatable = ({columns}) => {
       renderCell: (params) => {
         return (
           <div className="cellAction">
-            <Link to={`/${path}/${params.row._id}`} style={{ textDecoration: "none" }}>
+            <Link
+              to={`/${path}/${params.row._id}`}
+              style={{ textDecoration: "none" }}
+            >
               <div className="viewButton">Update</div>
             </Link>
             <div
@@ -41,10 +53,11 @@ const Datatable = ({columns}) => {
               Delete
             </div>
           </div>
-        );
-      },
-    },
-  ];
+        )
+      }
+    }
+  ]
+
   return (
     <div className="datatable">
       <div className="datatableTitle">
@@ -54,16 +67,16 @@ const Datatable = ({columns}) => {
         </Link>
       </div>
       <DataGrid
-        className="datagrid"
         rows={list}
         columns={columns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
         checkboxSelection
         getRowId={(row) => row._id}
+        className="datagrid"
       />
     </div>
-  );
-};
+  )
+}
 
-export default Datatable;
+export default Datatable

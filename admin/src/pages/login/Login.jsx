@@ -1,45 +1,44 @@
-import axios from "axios";
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
-// import { AuthContext } from "../../context/AuthContext";
-import "./login.scss";
+import "./login.scss"
+import { AuthContext } from "../../context/AuthContext"
+import { useNavigate } from "react-router-dom"
+import axios from "axios"
+import { useContext, useState } from "react"
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
     username: undefined,
-    password: undefined,
-  });
+    password: undefined
+  })
 
-  const { loading, error, dispatch } = useContext(AuthContext);
+  const { loading, error, dispatch } = useContext(AuthContext)
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
-    setCredentials((prev) => ({ ...prev, [e.target.id]: e.target.value }));
-  };
+    setCredentials((prev) => ({ ...prev, [e.target.id]: e.target.value }))
+  }
 
   const handleClick = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await axios.post("/auth/login", credentials);
+      const res = await axios.post("/auth/login", credentials)
 
       const userDetails = res.data
       if (userDetails.isAdmin) {
-        dispatch({ type: "LOGIN_SUCCESS", payload: userDetails });
+        dispatch({ type: "LOGIN_SUCCESS", payload: userDetails })
 
         navigate("/");
       } else {
         dispatch({
           type: "LOGIN_FAILURE",
-          payload: { message: "You are not allowed!" },
-        });
+          payload: { message: "You are not allowed!" }
+        })
       }
     } catch (err) {
-      dispatch({ type: "LOGIN_FAILURE", payload: err.response.data });
+      dispatch({ type: "LOGIN_FAILURE", payload: err.response.data })
     }
-  };
+  }
 
   return (
     <div className="login">
@@ -64,7 +63,7 @@ const Login = () => {
         {error && <span>{error.message}</span>}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
